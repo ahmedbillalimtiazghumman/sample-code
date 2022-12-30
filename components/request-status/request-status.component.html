@@ -1,0 +1,101 @@
+
+<ng-container *ngIf="!(showCoApplicantInfo$ | async)">
+    <sw-info-bar *ngIf="stepperInfoBar"  [taskInformation]="stepperInfoBar" [isNewRequest]="false"></sw-info-bar>
+</ng-container>
+<ng-container *ngIf="(showCoApplicantInfo$ | async)">
+    <sw-info-bar *ngIf="coApplicantInfoBar"  [taskInformation]="coApplicantInfoBar" [isNewRequest]="false"></sw-info-bar>
+</ng-container>
+<ng-container *ngIf="(applicationDetails$ | async) as applicationDetails">
+    <div class="container p--4">
+        <div class="mt-2 row justify--content--between">
+            <fds-button class="d--inline-block mb--5 ml--2" (onClick)="goToDashboard()"
+                        className="btn btn--back btn--tooltip text--link--color text--uppercase p--0">
+                <i class="icon-chevronleft"></i>
+                <span class="btn--text">{{ 'application-details.dashboard' | translate }}</span>
+            </fds-button>
+            <fds-button class="d--inline-block mb--5 ml--2"
+                        className="btn btn--back btn--tooltip text--link--color text--uppercase p--0" (click)="goToRequestHistory()">
+                <i class="icon-history"></i>
+                <span class="btn--text">{{ 'application-details.request-history' | translate }}</span>
+            </fds-button>
+        </div>
+        <div class="bg--white has--shadow pt--5 pb--6">
+            <div class="row px--3 mb--3">
+                <div class="col--6">
+                    <h2>{{'application-details.status-title' | translate}}</h2>
+                </div>
+            </div>
+            <table class="fds--table fds--table--striped">
+                <thead>
+                <th>{{'application-details.type-product' | translate}}</th>
+                <th>{{'application-details.request-date' | translate}}</th>
+                <th>{{'application-details.last-updated' | translate}}</th>
+                <th>{{'application-details.channel' | translate}}</th>
+                <th>{{'application-details.status' | translate}}</th>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ modifyRequestType(applicationDetails.status.requestType , applicationDetails.status.productCode) }}</td>
+                    <td>{{applicationDetails.status.submissionDate |  date: 'dd-MMM-y h:mm:ss'}}</td>
+                    <td>{{applicationDetails.status.lastUpdated | date: 'dd-MMM-y h:mm:ss'}}</td>
+                    <td>{{applicationDetails.status.channel == 'simpliiContactCenter' ? 'Call Center' : 'Online Banking'}}</td>
+                    <td>{{applicationDetails.status.state}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="px--6 application-details-container">
+                <ng-container
+                        *ngFor="let applicant of applicationDetails.details.stakeHolders.applicants; let i = index">
+                    <h3 class="section-title pl--2 pt--2 mt--6">{{applicant.clientInformation.clientInfo.name}}</h3>
+                    <section class="pl--2 mb--4">
+                        <h4>{{'application-details.details-title' | translate}}</h4>
+                        <div class="w—-50">
+                            <div class="row mb--6">
+                                <div class="col--6">
+                                    <div class="mb--2">
+                                        <span><b>{{'application-details.details.account' | translate}} #</b></span>
+                                        <span class="ml--2">{{applicationDetails?.details?.fulfillment[1]?.accountNumber ? applicationDetails?.details?.fulfillment[i]?.accountNumber: applicationDetails?.details?.fulfillment[0]?.accountNumber || '-'}}</span>
+                                    </div>
+                                    <div class="mb--2">
+                                        <span><b>{{'application-details.details.card' | translate}} #</b></span>
+                                        <span class="ml--2">{{applicationDetails?.details?.fulfillment[1]?.cardNumber ? applicationDetails?.details?.fulfillment[i]?.cardNumber: applicationDetails?.details?.fulfillment[0]?.cardNumber || '-'}}</span>
+                                    </div>
+                                    <div class="mb--2">
+                                        <span><b>{{'application-details.details.interest-rate' | translate}}</b></span>
+                                        <span class="ml--2">{{ applicationDetails?.details?.fulfillment[1]?.interestRate ? applicationDetails?.details?.fulfillment[i]?.interestRate: applicationDetails?.details?.fulfillment[0]?.interestRate || '-'}} %</span>
+                                    </div>
+                                    <div class="mb--2">
+                                        <span><b>{{'application-details.details.account-type' | translate}}</b></span>
+                                        <span class="ml--2">{{(applicationDetails?.details?.fulfillment[i]?.accountType ? applicationDetails?.details?.fulfillment[i]?.accountType : applicationDetails?.details?.fulfillment[0]?.accountType) == 'SINGLE' ? 'Single' : (applicationDetails?.details?.fulfillment[i]?.accountType == 'JOINT' ? 'Joint' : '-')}}</span>
+                                    </div>
+                                    <div class="mb--2">
+                                        <span><b>{{'application-details.details.account-status' | translate}}
+                                            #</b></span>
+                                        <span class="ml--2">{{getAccountStatus(applicationDetails?.details?.fulfillment[i]?.accountStatus ? applicationDetails?.details?.fulfillment[i]?.accountStatus: applicationDetails?.details?.fulfillment[0]?.accountStatus) || '-'}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </ng-container>
+                <hr/>
+                <div class="row justify--content--between">
+                    <ng-container *ngIf="(queryParam$ | async) as id">
+                        <ng-container *ngIf="!enableRefresh(applicationDetails?.details?.fulfillment)">
+                            <fds-button [ariaDisabled]="true"
+                            className="btn btn--primary--outline btnRounded ml--3">{{ 'application-details.refresh' | translate }}</fds-button>
+                        </ng-container>
+                        <ng-container *ngIf="enableRefresh(applicationDetails?.details?.fulfillment)">
+                            <fds-button
+                            (click)="refreshPage()"
+                            className="btn btn--primary--outline btnRounded ml--3">{{ 'application-details.refresh' | translate }}</fds-button>
+                        </ng-container>
+                        
+                        <fds-button (click)="redirectToRequestDetails(id)"
+                                    className="btn btn--primary btnRounded ml--3">{{ 'application-details.view-request-details' | translate }}</fds-button>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

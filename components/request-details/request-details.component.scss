@@ -1,0 +1,47 @@
+.application-details-container {
+  .fds-accordion {
+    .fds-accordion-item {
+      .fds-accordion-content {
+        padding: 1rem 0 1rem 1rem !important;
+      }
+    }
+  }
+}
+
+.section-title {
+  background-color: #EEF4FC;
+}
+
+.icon-check-square {
+  height: 20px;
+  width: 20px;
+  background-color: #3FB659;
+  color: white;
+  padding: 2px;
+}
+
+.icon-cross-square {
+  height: 20px;
+  width: 20px;
+  background-color: #DB0025;
+  color: white;
+  padding: 2px;
+}
+
+.details_rules{
+  .icon {
+    font-size: 20px;
+    &.success {
+        color: var(--green);
+    }
+    &.warning {
+        color: var(--lemon) !important;
+    }
+    &.danger {
+        color: var(--white);
+        background-color: var(--red);
+        border-radius: 3px;
+        font-size: 16px;
+    }
+  }
+}

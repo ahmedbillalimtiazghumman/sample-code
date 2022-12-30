@@ -1,0 +1,499 @@
+
+
+<ng-container *ngIf="!(showCoApplicantInfo$ | async)">
+    <sw-info-bar *ngIf="stepperInfoBar"  [taskInformation]="stepperInfoBar" [isNewRequest]="false"></sw-info-bar>
+</ng-container>
+<ng-container *ngIf="(showCoApplicantInfo$ | async)">
+    <sw-info-bar *ngIf="coApplicantInfoBar"  [taskInformation]="coApplicantInfoBar" [isNewRequest]="false"></sw-info-bar>
+</ng-container>
+<div class="container p--4" *ngIf="(applicationDetails$ | async) as applicationDetails">
+    <div class="mt-2 row justify--content--between">
+        <fds-button class="d--inline-block mb--5 ml--2" (onClick)="goToDashboard()"
+            className="btn btn--back btn--tooltip text--link--color text--uppercase p--0">
+            <i class="icon-chevronleft"></i>
+            <span class="btn--text">{{ 'application-details.dashboard' | translate }}</span>
+        </fds-button>
+        <fds-button class="d--inline-block mb--5 ml--2" (onClick)="goToRequestHistory()"
+            className="btn btn--back btn--tooltip text--link--color text--uppercase p--0">
+            <i class="icon-history"></i>
+            <span class="btn--text">{{ 'application-details.request-history' | translate }}</span>
+        </fds-button>
+    </div>
+    <div class="bg--white has--shadow px--6 pt--5 pb--6">
+        <div class="row mb--3">
+            <div class="col--6">
+                <h2>{{'application-details.details-title' | translate}}</h2>
+            </div>
+            <!-- <div class="col--6 text--right">
+                <fds-button className="btn btn--primary--outline btnRounded ml--3">{{
+                    'application-details.add-additional-applicant' | translate }}</fds-button>
+                <fds-button className="btn btn--primary btnRounded ml--3">{{ 'application-details.open-in-finmo' |
+                    translate }}</fds-button>
+            </div> -->
+        </div>
+        <table class="fds--table fds--table--striped">
+            <thead>
+                <th>{{'application-details.type-product' | translate}}</th>
+                <th>{{'application-details.request-date' | translate}}</th>
+                <th>{{'application-details.last-updated' | translate}}</th>
+                <th>{{'application-details.channel' | translate}}</th>
+                <th>{{'application-details.status' | translate}}</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ modifyRequestType(applicationDetails.status.requestType ,  applicationDetails.status.productCode)}}</td>
+                    <td>{{applicationDetails.status.submissionDate | date: 'dd-MMM-y h:mm:ss'}}</td>
+                    <td>{{applicationDetails.status.lastUpdated | date: 'dd-MMM-y h:mm:ss'}}</td>
+                    <td>{{applicationDetails.status.channel == 'simpliiContactCenter' ? 'Call Center' : 'Online Banking'}}</td>
+                    <td>{{applicationDetails.status.state}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="application-details-container">
+            <fds-accordion class="m--8" multiple="true">
+                <ng-container
+                    *ngFor="let applicant of applicationDetails.details.stakeHolders.applicants; let i = index">
+                    <fds-accordionTab [header]="applicant.clientInformation.clientInfo.name"
+                        accordionTabClass="d--flex justify--content--between btn bg--link--color border--link--color btn--first w--100 mb--3 font--fsalbert--bold">
+                        <section>
+                            <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                <h4 class="pl--4 pt--2">{{'application-details.client-information.title' | translate}}
+                                </h4>
+                            </div>
+                            <ng-container *ngIf="applicant?.clientInformation?.clientInfo">
+                                <h4>{{'application-details.client-information.profile.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.profile.client-name'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientInfo.name ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.profile.language' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{
+                                                        applicant.clientInformation.clientInfo.language == "en-ca" ? "English" : "French" 
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.profile.sin' |
+                                                        translate}}
+                                                        :</b></span>
+                                                <span
+                                                    class="ml--2">{{ maskSin(applicant.clientInformation.clientInfo.sin) ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.profile.D.O.B' |
+                                                        translate}}
+                                                        .</b></span>
+                                                <span
+                                                    class="ml--2">{{(applicant.clientInformation.clientInfo.dob | date) ||  '-'}} </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="applicant?.clientInformation?.clientContact">
+                                <h4>{{'application-details.client-information.contact.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.contact.mobile' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ formatPhoneNumber(applicant.clientInformation.clientContact.mobile) ||  '-' }}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.contact.email' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ applicant.clientInformation.clientContact.email ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.contact.work' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ formatPhoneNumber(applicant.clientInformation.clientContact.work) ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.contact.home' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ formatPhoneNumber(applicant.clientInformation.clientContact.home) ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="applicant?.clientInformation?.clientAddress">
+                                <h4>{{'application-details.client-information.home-main.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.street-address'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.streetAddress ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.city' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.city ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.province' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.province ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.postal-code'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.postalCode ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.country' |
+                                                        translate}}</b></span>
+                                                            <span
+                                                            class="ml--2">{{ (applicant.clientInformation.clientAddress.country && applicant.clientInformation.clientAddress.country != null) ? applicant.clientInformation.clientAddress.country : '-'}}
+                                                            </span>
+                                            </div>
+                                        </div>
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.property-name'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.propertyName ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.postal-rural'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.postalRural ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.residential-status'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ checkResidentialStatus(applicant.clientInformation.clientAddress.residentialStatus) ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.move-in-date'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.moveInDate | date : 'dd-MMM-yyyy'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.home-main.foreign-info'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientAddress.foreignInfo ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="applicant?.clientInformation?.clientOccupation">
+                                <h4>{{'application-details.client-information.employment.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.name' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.employerName ||  '-'}}</span>
+                                            </div>
+                                            <!-- <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.address' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.employerAddress}}</span>
+                                            </div> -->
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.position'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.position ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.start-date'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.yearsOfService | date: 'dd-MMM-yyyy' ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.occupation-category'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.occupationCategory ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.occupation-description'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.occupationDescription ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.employment.detailed-description'
+                                                        | translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant.clientInformation.clientOccupation.detailDescription ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="applicant?.clientInformation?.clientTax">
+                                <h4>{{'application-details.client-information.tax.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.canadian-tax-resident'
+                                                        | translate}}
+                                                        : </b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.canadianTaxResident  ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.us-person' |
+                                                        translate}}
+                                                        :</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.usPersonForTaxPurpose || '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.us-tax-id' |
+                                                        translate}}
+                                                        :</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.usTaxId || '-'}}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.other-tax-residency'
+                                                        | translate}}
+                                                        :</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.otherTaxResidency || '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.tax-ID-No' |
+                                                        translate}}
+                                                        .</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.taxId || '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.other-tax-residency'
+                                                        | translate}}
+                                                        :</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.otherTaxResidency || '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.client-information.tax.tax-ID-No' |
+                                                        translate}}
+                                                        .</b></span>
+                                                <span
+                                                    class="ml--2">{{applicant?.clientInformation?.clientTax?.taxId || '-'}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container>
+                                <h4>{{'application-details.client-information.ID.title' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <ng-container>
+                                                <div class="mb--2">
+                                                    <span><b>{{'application-details.client-information.ID.ID-on-File' |
+                                                            translate}}
+                                                            :</b></span>
+                                                    <span class="ml--2">{{applicant?.clientInformation?.idOnFile || applicant?.clientInformation?.idOnFile == 'true' ? 'Yes' : 'No'}}</span>
+                                                </div>
+                                            </ng-container>
+                                            <ng-container *ngIf="applicant?.clientInformation?.idValidationMethod">
+                                                <div class="mb--2">
+                                                    <span>
+                                                        <b>{{'application-details.client-information.ID.verification-method' | translate}}:</b>
+                                                    </span>
+                                                    <span class="ml--2 text--capitalize">
+                                                        <ng-container *ngIf="applicant.clientInformation.idValidationMethod == 'secureEmail'">
+                                                            {{'application-details.client-information.ID.secured-email' | translate}}
+                                                        </ng-container>
+                                                        <ng-container *ngIf="applicant.clientInformation.idValidationMethod == 'canadaPost'">
+                                                            {{'application-details.client-information.ID.mail' | translate}}
+                                                        </ng-container>
+                                                    </span>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </section>
+
+                        <section class="mb--6">
+                            <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                <h4 class="pl--4 pt--2">{{'application-details.eligibility.title' | translate}}</h4>
+                            </div>
+                            <ng-container *ngIf="applicant?.ruleResults?.rules && applicant?.ruleResults?.rules.length">
+                                <ng-container *ngFor="let rules of sortRules(applicant?.ruleResults?.rules)">
+                                    <div class="w—-50">
+                                        <div class="row">
+                                            <div class="col--6">
+                                                <div class="mb--2 details_rules">
+                                                    <ng-template #fail>
+                                                        <span class="icon icon-cross danger"></span>
+                                                    </ng-template>
+                                                    <span *ngIf="rules.outcome === 'PASS';else fail"
+                                                        class="icon icon-checkbox success"></span>
+                                                        <span class="ml--2">{{('application-details.eligibility.' +
+                                                            eligibilityRule(rules.ruleId, rules.outcome)) | translate}}</span>
+                                                </div>
+    
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </ng-container>
+                        </section>
+
+                        <section class="mb--6">
+                            <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                <h4 class="pl--4 pt--2">
+                                    {{'application-details.prescreening.title' | translate}}
+                                </h4>
+                            </div>
+                            <ng-container *ngIf="applicationDetails?.details?.prescreening && applicationDetails.details.prescreening.length">
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.prescreening.intended-use-of-account' | translate}}</b></span>
+                                                <span class="ml--2">{{getIntentdedUse(applicationDetails?.details?.prescreening[0]?.value)}}</span>
+                                            </div>
+                                            <ng-container *ngIf="applicationDetails.details.prescreening.length > 1">
+                                                <div class="mb--2">
+                                                    <span><b>{{'application-details.prescreening.third-party' |
+                                                            translate}}</b></span>
+                                                    <span class="ml--2">{{applicationDetails?.details?.prescreening[1]?.value
+                                                        === 'Y' ? 'Yes' : 'No'}}</span>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </section>
+
+                        <section class="mb--6">
+                            <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                <h4 class="pl--4 pt--2">{{'application-details.disclosures.title' | translate}}</h4>
+                            </div>
+                            <!-- <ng-container *ngFor="let consent of applicationDetails.details.consents "> -->
+                            <ng-container *ngIf="applicationDetails?.details?.consents">
+                                <ng-container *ngFor="let consent of applicationDetails.details.consents">
+                                    <div class="w—-50">
+                                        <div class="row">
+                                            <div class="col--6">
+                                                <div class="mb--2">
+                                                    <span><b>{{'application-details.disclosures.general-disclosure' |
+                                                            translate}}</b></span>
+                                                    <span class="ml--2">{{(consent.value === 'Y' ?
+                                                        'application-details.disclosures.yes' :
+                                                        'application-details.disclosures.no') | translate}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </ng-container>
+                        </section>
+
+                        <section class="mb--6">
+                            <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                <h4 class="pl--4 pt--2">{{'application-details.option.title' | translate}}</h4>
+                            </div>
+                            <ng-container *ngIf="applicant?.cardToLink">
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.option.linked-debit-card' |
+                                                        translate}}</b></span>
+                                                <span class="ml--2">{{applicant.cardToLink ||  '-'}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </section>
+
+                        <ng-container *ngIf="applicationDetails?.details?.fulfillment">
+                            <section class="mb--6">
+                                <div class="row mb--4 section-title mr--0 d--flex justify--content--between">
+                                    <h4 class="pl--4 pt--2">{{'application-details.details.title' | translate}}</h4>
+                                </div>
+                                <h4>{{'application-details.details.account-status' | translate}}</h4>
+                                <div class="w—-50">
+                                    <div class="row mb--6">
+                                        <div class="col--6">
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.details.account' | translate}} #</b></span>
+                                                <span
+                                                    class="ml--2">{{applicationDetails?.details?.fulfillment[1]?.accountNumber ? applicationDetails?.details?.fulfillment[i]?.accountNumber: applicationDetails?.details?.fulfillment[0]?.accountNumber ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.details.card' | translate}} #</b></span>
+                                                <span
+                                                    class="ml--2">{{applicationDetails?.details?.fulfillment[1]?.cardNumber ? applicationDetails?.details?.fulfillment[i]?.cardNumber: applicationDetails?.details?.fulfillment[0]?.cardNumber ||  '-'}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.details.interest-rate' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{ applicationDetails?.details?.fulfillment[1]?.interestRate ? applicationDetails?.details?.fulfillment[i]?.interestRate: applicationDetails?.details?.fulfillment[0]?.interestRate ||  '0' }} %</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.details.account-type' |
+                                                        translate}}</b></span>
+                                                <span
+                                                    class="ml--2">{{(applicationDetails?.details?.fulfillment[1]?.accountType ? applicationDetails?.details?.fulfillment[i]?.accountType : applicationDetails?.details?.fulfillment[0]?.accountType) == 'SINGLE' ? 'Single' : (applicationDetails.details.fulfillment[0].accountType == 'JOINT' ? 'Joint' : '-')}}</span>
+                                            </div>
+                                            <div class="mb--2">
+                                                <span><b>{{'application-details.details.account-status' | translate}}
+                                                        #</b></span>
+                                                <span class="ml--2">{{getAccountStatus(applicationDetails?.details?.fulfillment[1]?.accountStatus ? applicationDetails?.details?.fulfillment[i]?.accountStatus: applicationDetails?.details?.fulfillment[0]?.accountStatus )}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </ng-container>
+                    </fds-accordionTab>
+                </ng-container>
+            </fds-accordion>
+        </div>
+    </div>
+</div>
